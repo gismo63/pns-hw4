@@ -6,7 +6,7 @@ class Grid{
   public:
     Grid(int, int, double);
     void change(int);
-    double action(int, int);
+    double action(int,int);
     vec return_g();
     double magnetisation();
 
@@ -23,24 +23,29 @@ Grid::Grid(int L, int q, double beta): L_(L), q_(q), g(L*L) {
 }
 
 void Grid::change(int k){
-  int s, delta=0,prop;
+  int delta=0;
+  vec prop, s;
   double prob,prob_rand;
   for(int i=0;i<k;i++){
-    s = rand()%n_;
-    prop = rand()%(q_-1)+1;
-    if(prop >= g[s]){
-      prop++;
+    s.push_back(rand()%n_);
+    prop.push_back(rand()%(q_-1)+1);
+    if(prop[i] >= g[s[i]]){
+      prop[i]++;
     }
-    delta += action(s,prop);
-    if(delta>0){
-      prob = exp(-(beta_*delta));
-      prob_rand = double(rand())/INT_MAX;
-      if(prob>prob_rand){
-        g[s] = prop;
+    delta += action(s[i],prop[i]);
+  }
+  if(delta>0){
+    prob = exp(-(beta_*delta));
+    prob_rand = double(rand())/INT_MAX;
+    if(prob>prob_rand){
+      for(int i = 0; i< k; i++){
+        g[s[i]] = prop[i];
       }
     }
-    else{
-      g[s] = prop;
+  }
+  else{
+    for(int i = 0; i<k; i++){
+      g[s[i]] = prop[i];
     }
   }
 }
@@ -52,7 +57,7 @@ double Grid::action(int s, int prop){
   int left = g[y*L_+(x-1)%L_];
   int right = g[y*L_+(x+1)%L_];
   int up = g[((y+1)%L_)*L_+x];
-  int down = g[((y+1)%L_)*L_+x];
+  int down = g[((y-1)%L_)*L_+x];
   if(g[s] !=left){s_o++;}
   if(g[s] !=right){s_o++;}
   if(g[s] !=up){s_o++;}
